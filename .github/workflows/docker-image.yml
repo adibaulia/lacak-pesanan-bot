@@ -3,8 +3,6 @@ name: Docker Image CI
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
 
@@ -23,7 +21,6 @@ jobs:
     - name: Push image to Heroku
       run: docker login -u _ -p $HEROKU_TOKEN registry.heroku.com
     - run: docker push registry.heroku.com/${HEROKU_APP}/web
-    - run: apt install curl
     - run: echo "Docker Image ID is $(cat imageid.txt)"
     - name: curl
       uses: wei/curl@v1
