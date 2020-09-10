@@ -2,32 +2,21 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-
   build:
-    env: 
+    env:
       HEROKU_APP: ${{ secrets.HEROKU_APP }}
-      HEROKU_TOKEN: ${{ secrets.HEROKU_TOKEN }}
-    
+      HEROKU_API_KEY: ${{ secrets.HEROKU_TOKEN }}
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build -f Dockerfile --iidfile imageid.txt -t registry.heroku.com/${HEROKU_APP}/web .
-      
-    - name: Push image to Heroku
-      run: docker login -u _ -p $HEROKU_TOKEN registry.heroku.com
-    - run: docker push registry.heroku.com/${HEROKU_APP}/web
-    - run: echo "Docker Image ID is $(cat imageid.txt)"
-    - name: 'Call API'
-      uses: indiesdev/curl@v1
-      with:               
-        url: https://api.heroku.com/apps/${HEROKU_APP}/formation
-        method: 'PATCH'
-        headers: '{ "Content-Type": "application/json", "Accept": "application/vnd.heroku+json; version=3.docker-releases"}'
-        bearer-token: ${HEROKU_TOKEN}
-        body: |
-              '{ "updates": [ { "type": "web", "docker_image": "'$(cat imageid.txt)'" } ] }'
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: heroku container:login
+      - name: Build and push
+        run: heroku container:push -a $HEROKU_APPweb
+      - name: Release
+        run: heroku container:release -a $HEROKU_APP web
