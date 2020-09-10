@@ -14,9 +14,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build the Docker image
+      - name: Login to heroku
         run: heroku container:login
       - name: Build and push
-        run: heroku container:push -a $HEROKU_APPweb
+        run: heroku container:push -a $HEROKU_APP web
       - name: Release
         run: heroku container:release -a $HEROKU_APP web
